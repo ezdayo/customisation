@@ -6,9 +6,9 @@ The customisation framework is a set of C++ classes aimed at providing a simple 
 
 ## How-to build and install?
 
-`mkdir bld`
-`cd bld`
-`cmake -DCMAKE_BUILD_TYPE=Release ..`
-`make -j 8`
-`sudo make install`
+`mkdir bld
+cd bld
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make -j 8
+sudo make install`
 
