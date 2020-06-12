@@ -29,6 +29,15 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_FULL)
 # CMake version 3.10+ is required (to enable cppcheck commands)
 cmake_minimum_required(VERSION 3.1)
 
+# Runtime library dependencies
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/mk)
+
+# The readline package is mandatory for the CLI interface implementation where
+# applicable!
+if(NOT ANDROID)
+find_package(Readline)
+endif()
+
 # C++ compiler options for all build configurations 
 set (CMAKE_CXX_STANDARD 11)
 include(mk/cxx-flag-rules.cmake)
@@ -40,10 +49,10 @@ enable_cxx_compiler_flag_if_supported(-fdata-sections)
 enable_cxx_compiler_flag_if_supported(-ffunction-sections)
 enable_cxx_compiler_flag_if_supported("${EXTRA_CXX_FLAGS}")
 
-if(!ANDROID)
-SET(CMAKE_AR  "gcc-ar")
-SET(CMAKE_RANLIB  "gcc-ranlib")
-endif()
+#if(NOT ANDROID)
+#SET(CMAKE_AR  "gcc-ar")
+#SET(CMAKE_RANLIB  "gcc-ranlib")
+#endif()
 
 #
 # Binary targets
@@ -54,7 +63,7 @@ configure_file (${PROJECT_SOURCE_DIR}/tpl/customisation.hpp.in
 	        ${PROJECT_SOURCE_DIR}/inc/customisation.hpp @ONLY)
 
 # Customisation static library configuration
-include_directories(${PROJECT_SOURCE_DIR}/inc)
+include_directories(${PROJECT_SOURCE_DIR}/inc ${Readline_INCLUDE_DIRS})
 add_definitions(-DLOGTAG="Customisation")
 set(SRC_FILES ${PROJECT_SOURCE_DIR}/inc/customisation.hpp
 	      ${PROJECT_SOURCE_DIR}/src/checker.cpp
@@ -66,15 +75,28 @@ set(SRC_FILES ${PROJECT_SOURCE_DIR}/inc/customisation.hpp
 	      ${PROJECT_SOURCE_DIR}/src/translator.cpp
 	      ${PROJECT_SOURCE_DIR}/src/types.cpp)
 
+# CLI interface is only available when the readline library is available
+if(Readline_FOUND)
+	set(SRC_FILES ${SRC_FILES}
+	      	      ${PROJECT_SOURCE_DIR}/src/cli.cpp)
+endif()
+      
 # Targets definitions
 add_library(customisation STATIC ${SRC_FILES})
-target_link_libraries(customisation -Wl,--gc-sections)
+target_link_libraries(customisation ${Readline_LIBRARY} -Wl,--gc-sections)
 install(TARGETS customisation 
 	ARCHIVE DESTINATION lib)
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/inc/
 	DESTINATION include
-	FILES_MATCHING PATTERN "*.hpp")
+	FILES_MATCHING PATTERN "*.hpp"
+	PATTERN "cli.hpp" EXCLUDE)
+
+if(Readline_FOUND)
+	install(DIRECTORY ${PROJECT_SOURCE_DIR}/inc/
+		DESTINATION include
+		FILES_MATCHING PATTERN "*/cli.hpp")
+endif()
 
 # Unit tests
 add_executable(test-translator EXCLUDE_FROM_ALL

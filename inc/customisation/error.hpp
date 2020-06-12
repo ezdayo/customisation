@@ -4,7 +4,9 @@
  *
  * @brief     This is the definition of Customisation error codes
  *
- * @author    Olivier Stoltz-Douchet <ezdayo@gmail.com>
+ *            This file is part of the Customisation framework (see link).
+ *
+  * @author    Olivier Stoltz-Douchet <ezdayo@gmail.com>
  *
  * @copyright (c) 2019-2020 Olivier Stoltz-Douchet
  * @license   http://opensource.org/licenses/MIT MIT
