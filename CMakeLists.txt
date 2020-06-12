@@ -24,6 +24,10 @@ set(VERSION_PATCH   0   CACHE STRING "Project patch version number.")
 set(VERSION_FULL "${VERSION_MAJOR}.${VERSION_MINOR} rev. ${VERSION_PATCH}")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_FULL)
 
+# PKGCONFIG installation directory
+set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" 
+    CACHE PATH "Installation directory for pkgconfig (.pc) files")
+
 # CMake version 3.1+ is required (to enable C++11 options)
 # CMake version 3.6+ is required (to enable clang-tidy commands)
 # CMake version 3.10+ is required (to enable cppcheck commands)
@@ -58,10 +62,6 @@ enable_cxx_compiler_flag_if_supported("${EXTRA_CXX_FLAGS}")
 # Binary targets
 #
 
-# Configure header files
-configure_file (${PROJECT_SOURCE_DIR}/tpl/customisation.hpp.in
-	        ${PROJECT_SOURCE_DIR}/inc/customisation.hpp @ONLY)
-
 # Customisation static library configuration
 include_directories(${PROJECT_SOURCE_DIR}/inc ${Readline_INCLUDE_DIRS})
 add_definitions(-DLOGTAG="Customisation")
@@ -79,8 +79,20 @@ set(SRC_FILES ${PROJECT_SOURCE_DIR}/inc/customisation.hpp
 if(Readline_FOUND)
 	set(SRC_FILES ${SRC_FILES}
 	      	      ${PROJECT_SOURCE_DIR}/src/cli.cpp)
+	set(CUSTOMISATION_HAS_CLI TRUE)
+	set(CUSTOMISATION_CLI_INCLUDE "#include \"customisation/cli.hpp\"")
+	get_filename_component(Readline_LIB_PATH ${Readline_LIBRARY} DIRECTORY)
+	set(Readline_LINK "-L${Readline_LIB_PATH} -lreadline")
 endif()
       
+# Configure header files
+configure_file (${PROJECT_SOURCE_DIR}/tpl/customisation.hpp.in
+	        ${PROJECT_SOURCE_DIR}/inc/customisation.hpp @ONLY)
+
+# Configure pkg-config files
+configure_file (${PROJECT_SOURCE_DIR}/tpl/customisation.pc.in
+	        ${PROJECT_BINARY_DIR}/customisation.pc @ONLY)
+
 # Targets definitions
 add_library(customisation STATIC ${SRC_FILES})
 target_link_libraries(customisation ${Readline_LIBRARY} -Wl,--gc-sections)
@@ -90,13 +102,16 @@ install(TARGETS customisation
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/inc/
 	DESTINATION include
 	FILES_MATCHING PATTERN "*.hpp"
-	PATTERN "cli.hpp" EXCLUDE)
+	PATTERN "*/cli.hpp" EXCLUDE)
 
 if(Readline_FOUND)
 	install(DIRECTORY ${PROJECT_SOURCE_DIR}/inc/
 		DESTINATION include
 		FILES_MATCHING PATTERN "*/cli.hpp")
 endif()
+
+install(FILES ${PROJECT_BINARY_DIR}/customisation.pc 
+	DESTINATION "${INSTALL_PKGCONFIG_DIR}")
 
 # Unit tests
 add_executable(test-translator EXCLUDE_FROM_ALL

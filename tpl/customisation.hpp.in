@@ -21,6 +21,7 @@
 
 #pragma once
 
+/* Entities and parameters */
 #include "customisation/entity.hpp"
 #include "customisation/parameter.hpp"
 
@@ -29,3 +30,6 @@
 #define CUSTOMISATION_VERSION_MINOR @VERSION_MINOR@
 #define CUSTOMISATION_VERSION_PATCH @VERSION_PATCH@
 
+/* Customisation CLI support */
+#cmakedefine CUSTOMISATION_HAS_CLI
+@CUSTOMISATION_CLI_INCLUDE@
