@@ -16,6 +16,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <iomanip>
+#include <openssl/md5.h>
+#include <sstream>
 
 #include "log.hpp"
 #include "customisation/configuration.hpp"
@@ -190,6 +193,36 @@ Customisation::Error Configuration::setup() noexcept {
     }
 
     return Customisation::Error::NONE;
+}
+
+#define BUFFSIZE 16384
+std::string MD5::compute(const std::string& file) noexcept {
+    char buffer[BUFFSIZE];
+    unsigned char digest[MD5_DIGEST_LENGTH];
+    std::stringstream ss;
+    std::string md5string;
+    std::ifstream ifs(file, std::ifstream::binary);
+    if (!ifs.good()) return {};
+
+    MD5_CTX md5Context;
+    MD5_Init(&md5Context);
+    
+    while (ifs.good()) {
+        ifs.read(buffer, BUFFSIZE);
+        MD5_Update(&md5Context, buffer, ifs.gcount());
+    }
+    
+    ifs.close();
+
+    int res = MD5_Final(digest, &md5Context);   
+    if (res == 0) return {};
+
+    ss << std::hex << std::setfill('0');
+    for(unsigned char uc: digest)
+        ss << std::setw(2) << static_cast<int>(uc);
+    md5string = ss.str();
+
+    return md5string;
 }
 
 }  // namespace Customisation

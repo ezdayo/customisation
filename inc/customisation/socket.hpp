@@ -71,8 +71,4 @@ class Socket {
         CURL        *curl;
 };
 
-namespace MD5 {
-    std::string compute(const std::string& file) noexcept;
-}
-
 }  // namespace Customisation

@@ -38,6 +38,7 @@ find_package(PkgConfig)
 
 # The Curl package is mandatory for the configuration IO implementation
 pkg_check_modules(Curl libcurl)
+pkg_check_modules(OpenSSL libcrypto libssl)
 
 # The readline package is mandatory for the CLI interface implementation
 find_package(Readline)
@@ -78,19 +79,25 @@ set(SRC_FILES ${PROJECT_SOURCE_DIR}/inc/customisation.hpp
 # Configuration and socket are only available when Curl is installed      
 if(Curl_FOUND)
 	set(SRC_FILES ${SRC_FILES}
-	      	      ${PROJECT_SOURCE_DIR}/src/configuration.cpp
 	      	      ${PROJECT_SOURCE_DIR}/src/socket.cpp)
-	set(CUSTOMISATION_HAS_CONFIGURATION TRUE)
 	set(CUSTOMISATION_HAS_SOCKET TRUE)
-	set(CUSTOMISATION_CONFIGURATION_INCLUDE
-	    "#include \"customisation/configuration.hpp\"")
     	set(CUSTOMISATION_SOCKET_INCLUDE
 	    "#include \"customisation/socket.hpp\"")
 	set(CUSTOMISATION_LIB_PRIVATE
-		"${CUSTOMISATION_LIB_PRIVATE} -L${Curl_LIBRARY_DIRS} -lcurl")
+		"${CUSTOMISATION_LIB_PRIVATE} ${Curl_LDFLAGS}")
+if(OpenSSL_FOUND)
+	set(SRC_FILES ${SRC_FILES}
+            ${PROJECT_SOURCE_DIR}/src/configuration.cpp)
+	set(CUSTOMISATION_HAS_CONFIGURATION TRUE)
+	set(CUSTOMISATION_CONFIGURATION_INCLUDE
+	    "#include \"customisation/configuration.hpp\"")
+	set(CUSTOMISATION_LIB_PRIVATE
+	    "${CUSTOMISATION_LIB_PRIVATE} ${OpenSSL_LDFLAGS}")
 else()
 	set(CUSTOMISATION_CONFIGURATION_INCLUDE
-	    "/* Rebuild Customisation with Curl to enable Configuration */")
+	    "/* Rebuild Customisation with OpenSSL to enable Configuration */")
+endif()
+else()
     	set(CUSTOMISATION_SOCKET_INCLUDE
 	    "/* Rebuild Customisation with Curl to enable Socket */")
 endif()

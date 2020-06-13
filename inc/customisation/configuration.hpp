@@ -27,6 +27,10 @@
 
 namespace Customisation {
 
+namespace MD5 {
+    std::string compute(const std::string& file) noexcept;
+}
+
 class Configuration : public Parametrisable {
     public:
         Configuration() noexcept;
