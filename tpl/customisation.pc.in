@@ -10,5 +10,5 @@ Requires:
 Requires.private: 
 Conflicts:
 Libs: -L${libdir} -lcustomisation
-Libs.private: @Readline_LINK@
+Libs.private:@CUSTOMISATION_LIB_PRIVATE@
 Cflags: -I${includedir} -I${includedir}/customisation

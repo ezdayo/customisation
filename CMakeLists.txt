@@ -14,8 +14,7 @@
 #
 
 # Customisation is a C++ project
-project(Customisation
-        LANGUAGES CXX)
+project(Customisation LANGUAGES CXX)
 
 # The project version number.
 set(VERSION_MAJOR   1   CACHE STRING "Project major version number.")
@@ -35,12 +34,13 @@ cmake_minimum_required(VERSION 3.1)
 
 # Runtime library dependencies
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/mk)
+find_package(PkgConfig)
 
-# The readline package is mandatory for the CLI interface implementation where
-# applicable!
-if(NOT ANDROID)
+# The Curl package is mandatory for the configuration IO implementation
+pkg_check_modules(Curl libcurl)
+
+# The readline package is mandatory for the CLI interface implementation
 find_package(Readline)
-endif()
 
 # C++ compiler options for all build configurations 
 set (CMAKE_CXX_STANDARD 11)
@@ -75,6 +75,26 @@ set(SRC_FILES ${PROJECT_SOURCE_DIR}/inc/customisation.hpp
 	      ${PROJECT_SOURCE_DIR}/src/translator.cpp
 	      ${PROJECT_SOURCE_DIR}/src/types.cpp)
 
+# Configuration and socket are only available when Curl is installed      
+if(Curl_FOUND)
+	set(SRC_FILES ${SRC_FILES}
+	      	      ${PROJECT_SOURCE_DIR}/src/configuration.cpp
+	      	      ${PROJECT_SOURCE_DIR}/src/socket.cpp)
+	set(CUSTOMISATION_HAS_CONFIGURATION TRUE)
+	set(CUSTOMISATION_HAS_SOCKET TRUE)
+	set(CUSTOMISATION_CONFIGURATION_INCLUDE
+	    "#include \"customisation/configuration.hpp\"")
+    	set(CUSTOMISATION_SOCKET_INCLUDE
+	    "#include \"customisation/socket.hpp\"")
+	set(CUSTOMISATION_LIB_PRIVATE
+		"${CUSTOMISATION_LIB_PRIVATE} -L${Curl_LIBRARY_DIRS} -lcurl")
+else()
+	set(CUSTOMISATION_CONFIGURATION_INCLUDE
+	    "/* Rebuild Customisation with Curl to enable Configuration */")
+    	set(CUSTOMISATION_SOCKET_INCLUDE
+	    "/* Rebuild Customisation with Curl to enable Socket */")
+endif()
+
 # CLI interface is only available when the readline library is available
 if(Readline_FOUND)
 	set(SRC_FILES ${SRC_FILES}
@@ -82,9 +102,13 @@ if(Readline_FOUND)
 	set(CUSTOMISATION_HAS_CLI TRUE)
 	set(CUSTOMISATION_CLI_INCLUDE "#include \"customisation/cli.hpp\"")
 	get_filename_component(Readline_LIB_PATH ${Readline_LIBRARY} DIRECTORY)
-	set(Readline_LINK "-L${Readline_LIB_PATH} -lreadline")
+	set(CUSTOMISATION_LIB_PRIVATE
+	    "${CUSTOMISATION_LIB_PRIVATE} -L${Readline_LIB_PATH} -lreadline")
+else()
+	set(CUSTOMISATION_CLI_INCLUDE
+	    "/* Rebuild Customisation with Readline to enable CLI */")
 endif()
-      
+
 # Configure header files
 configure_file (${PROJECT_SOURCE_DIR}/tpl/customisation.hpp.in
 	        ${PROJECT_SOURCE_DIR}/inc/customisation.hpp @ONLY)
@@ -95,14 +119,24 @@ configure_file (${PROJECT_SOURCE_DIR}/tpl/customisation.pc.in
 
 # Targets definitions
 add_library(customisation STATIC ${SRC_FILES})
-target_link_libraries(customisation ${Readline_LIBRARY} -Wl,--gc-sections)
+target_link_libraries(customisation 
+		      ${CURL_LDFLAGS} ${Readline_LIBRARY} -Wl,--gc-sections)
 install(TARGETS customisation 
 	ARCHIVE DESTINATION lib)
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/inc/
 	DESTINATION include
 	FILES_MATCHING PATTERN "*.hpp"
-	PATTERN "*/cli.hpp" EXCLUDE)
+	PATTERN "*/cli.hpp" EXCLUDE
+	PATTERN "*/configuration.hpp" EXCLUDE
+	PATTERN "*/socket.hpp" EXCLUDE)
+
+if(Curl_FOUND)
+	install(DIRECTORY ${PROJECT_SOURCE_DIR}/inc/
+		DESTINATION include
+		FILES_MATCHING PATTERN "*/configuration.hpp"
+		PATTERN "*/socket.hpp")
+endif()
 
 if(Readline_FOUND)
 	install(DIRECTORY ${PROJECT_SOURCE_DIR}/inc/

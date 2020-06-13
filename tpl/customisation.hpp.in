@@ -33,3 +33,11 @@
 /* Customisation CLI support */
 #cmakedefine CUSTOMISATION_HAS_CLI
 @CUSTOMISATION_CLI_INCLUDE@
+
+/* Customisation Configuration support */
+#cmakedefine CUSTOMISATION_HAS_CONFIGURATION
+@CUSTOMISATION_CONFIGURATION_INCLUDE@
+
+/* Customisation Socket support */
+#cmakedefine CUSTOMISATION_HAS_SOCKET
+@CUSTOMISATION_SOCKET_INCLUDE@
