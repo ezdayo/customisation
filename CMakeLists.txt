@@ -52,12 +52,16 @@ enable_cxx_compiler_flag_if_supported(-pedantic)
 enable_cxx_compiler_flag_if_supported(-fvisibility=hidden)
 enable_cxx_compiler_flag_if_supported(-fdata-sections)
 enable_cxx_compiler_flag_if_supported(-ffunction-sections)
+enable_cxx_compiler_flag_if_supported(-fPIC)
 enable_cxx_compiler_flag_if_supported("${EXTRA_CXX_FLAGS}")
 
-#if(NOT ANDROID)
-#SET(CMAKE_AR  "gcc-ar")
-#SET(CMAKE_RANLIB  "gcc-ranlib")
-#endif()
+#
+# Necessary for link-time optimisation LTO
+#
+if(NOT ANDROID)
+set(CMAKE_AR  "gcc-ar")
+set(CMAKE_RANLIB  "gcc-ranlib")
+endif()
 
 #
 # Binary targets
