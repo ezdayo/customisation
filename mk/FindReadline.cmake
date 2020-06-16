@@ -1,3 +1,15 @@
+#
+# Finding the GNU Readline library in the system
+#
+# This file is part of the Customisation framework (see link).
+#
+# Author:   Olivier Stoltz-Douchet <ezdayo@gmail.com>
+#
+# Copyright (c) 2019-2020 Olivier Stoltz-Douchet
+# License:  http://opensource.org/licenses/MIT MIT
+# Link:     https://github.com/ezdayo/customisation
+#
+
 # Search for the path containing library's headers
 find_path(Readline_ROOT_DIR
     NAMES include/readline/readline.h
