@@ -11,4 +11,4 @@ Requires.private:
 Conflicts:
 Libs: -L${libdir} -lcustomisation
 Libs.private:@CUSTOMISATION_LIB_PRIVATE@
-Cflags: -I${includedir} -I${includedir}/customisation
+Cflags: -I${includedir}
