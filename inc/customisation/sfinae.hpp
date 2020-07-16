@@ -30,8 +30,7 @@ namespace type {
 
 /* The has_member templated meta-structure allows to check if a given type has
  * some defined members, so that a "family" signature can be checked against */
-template<typename... Ts>
-struct has_members {};
+template<typename... Ts> struct has_members {};
 
 template<typename T, typename = void>
 struct is_container : public std::false_type {};

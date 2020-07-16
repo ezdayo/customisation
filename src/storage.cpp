@@ -80,7 +80,8 @@ IMPLEMENT_STORAGES_PAIR_MAP_KEY(uint64_t) \
 IMPLEMENT_STORAGES_PAIR_MAP_KEY(std::string) \
 IMPLEMENT_STORAGES_FOR(Customisation::Entity*) \
 IMPLEMENT_STORAGES_FOR(Customisation::Component*) \
-IMPLEMENT_STORAGES_FOR(void*)
+IMPLEMENT_STORAGES_FOR(void*) \
+IMPLEMENT_STORAGES_FOR(void (*)())
 
 /*
  * Implement'em all!!!

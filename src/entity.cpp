@@ -259,6 +259,27 @@ Error Entity::setup() noexcept {
     return Error::NONE; 
 }
 
+Error Entity::flush() noexcept {
+
+    for (auto & entry : _components) {
+        auto &entity = entry.get().entity();
+        if ( (&entity != &Entity::INVALID) && (entity.enabled()) ) {
+            auto error = entity.clear();
+            if (error != Error::NONE) {
+                LOGE("%s[%s]::flush() error %d",
+                      type().c_str(), name().c_str(), static_cast<int>(error));
+                return error;
+            }
+        }
+    }
+
+    return clear();
+}
+
+Error Entity::clear() noexcept {
+    return Error::NONE; 
+}
+
 void Entity::finalise() noexcept {
 
     /* Unlock all components first, so that they can be optionally be 

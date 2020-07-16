@@ -38,6 +38,7 @@ IMPLEMENT_TYPEOF(Customisation::Component, Component)
 IMPLEMENT_TYPEOF(Customisation::Component&, Component&)
 IMPLEMENT_TYPEOF(Customisation::Component*, Component*)
 IMPLEMENT_TYPEOF(void*, void*)
+IMPLEMENT_TYPEOF(void(*)(), void(*)())
 
 /* Implement the type_of specialisation for basic types, vectors of basic types,
  * and set of basic types */

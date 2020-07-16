@@ -104,7 +104,8 @@ IMPLEMENT_CHECKERS_PAIR_MAP_KEY(const uint64_t) \
 IMPLEMENT_CHECKERS_PAIR_MAP_KEY(const std::string) \
 IMPLEMENT_CHECKER_NONE(Customisation::Entity*) \
 IMPLEMENT_CHECKER_NONE(Customisation::Component*) \
-IMPLEMENT_CHECKER_NONE(void*)
+IMPLEMENT_CHECKER_NONE(void*) \
+IMPLEMENT_CHECKER_NONE(void (*)())
 
 /*
  * Implement'em all!!!

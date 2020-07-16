@@ -76,6 +76,9 @@ class Entity : public Component {
         Error initialise() noexcept;
         virtual Error setup() noexcept;
         
+        Error flush() noexcept;
+        virtual Error clear() noexcept;
+         
         void finalise() noexcept;
         virtual void terminate() noexcept;
 
